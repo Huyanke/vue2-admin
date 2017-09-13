@@ -25,10 +25,10 @@
 				<!--导航菜单-->
 				<div v-show="!collapsed" style="height:100vh;">
 				<el-menu :default-active="$route.path" class="el-menu-vertical-demo"  @open="handleopen" @close="handleclose"  unique-opened router>
-					<template v-for="(item,index) in $router.options.routes" v-if="!item.hidden">
+					<template v-for="(item,index) in $router.options.routes" v-if="routesFun(item)">
 						<el-submenu :index="index+''" v-if="!item.leaf">
 							<template slot="title"><i :class="item.iconCls"></i>{{item.name}}</template>
-							<el-menu-item v-for="child in item.children" :index="child.path" :key="child.path" v-if="!child.hidden">{{child.name}}</el-menu-item>
+							<el-menu-item v-for="child in item.children" :index="child.path" :key="child.path" v-if="routesFun(child)">{{child.name}}</el-menu-item>
 						</el-submenu>
 						<el-menu-item v-if="item.leaf&&item.children.length>0" :index="item.children[0].path"><i :class="item.iconCls"></i>{{item.children[0].name}}</el-menu-item>
 					</template>
@@ -36,11 +36,11 @@
 				</div>
 				<!--导航菜单-折叠后-->
 				<ul class="el-menu el-menu-vertical-demo collapsed" v-show="collapsed" ref="menuCollapsed">
-					<li v-for="(item,index) in $router.options.routes" v-if="!item.hidden" class="el-submenu item">
+					<li v-for="(item,index) in $router.options.routes" v-if="routesFun(item)" class="el-submenu item">
 						<template v-if="!item.leaf">
 							<div class="el-submenu__title" style="padding-left: 20px;" @mouseover="showMenu(index,true)" @mouseout="showMenu(index,false)"><i :class="item.iconCls"></i></div>
 							<ul class="el-menu submenu" :class="'submenu-hook-'+index" @mouseover="showMenu(index,true)" @mouseout="showMenu(index,false)">
-								<li v-for="child in item.children" v-if="!child.hidden" :key="child.path" class="el-menu-item" style="padding-left: 40px;" :class="$route.path==child.path?'is-active':''" @click="$router.push(child.path)">{{child.name}}</li>
+								<li v-for="child in item.children" v-if="routesFun(item)" :key="child.path" class="el-menu-item" style="padding-left: 40px;" :class="$route.path==child.path?'is-active':''" @click="$router.push(child.path)">{{child.name}}</li>
 							</ul>
 						</template>
 						<template v-else>
@@ -76,7 +76,7 @@
 	export default {
 		data() {
 			return {
-				sysName:'后台管理端',
+				sysName:'公共服务后台管理端',
 				collapsed: false,
 				sysUserName: '',
 				sysUserAvatar: '',
@@ -105,6 +105,22 @@
 			},
 			handleselect: function (a, b) {
 			},
+			routesFun(item){ //权限展示判断条件
+				    // let loginType = admininfo.getType();
+            let loginType = 0;
+            if(!item.hidden && loginType==0){ //0超级管理员拥有所有权限,1二级管理员，2三级管理员
+                return true;
+            }
+            if(!item.hidden && item.extent && item.extent.indexOf(loginType)<0){
+                 return true;
+            }
+            return false;
+
+            // if(!item.hidden){
+            //     return true;
+            // }
+            // return false;
+            },
 			//退出登录
 			logout: function () {
 				var _this = this;
@@ -129,7 +145,12 @@
 			}
 		},
 		mounted() {
-
+			var user = sessionStorage.getItem('user');
+			if (user) {
+				user = JSON.parse(user);
+				this.sysUserName = user.name || '';
+				this.sysUserAvatar = user.avatar || '';
+			}
 
 		}
 	}
@@ -186,11 +207,11 @@
 			}
 			.logo-width{
 				width:230px;
-				-webkit-transition-duration:.8s;
+			  @include animation-move;
 			}
 			.logo-collapse-width{
 				width:60px;
-				-webkit-transition-duration:.8s;
+			@include animation-move;
 			}
 			.tools{
 				padding: 0px 23px;
@@ -200,8 +221,12 @@
 				cursor: pointer;
 			}
       .rotatey {
-      	-webkit-transform:rotate(-90deg);
+      	transform:rotate(-90deg);
+				-webkit-transform:rotate(-90deg);
+      	-moz-transform:rotate(-90deg);
+				transition-duration:.5s;
 				-webkit-transition-duration:.5s;
+				-moz-transition-duration:.5s;
       }
 		}
 		.main {
@@ -222,7 +247,7 @@
 				}
 				.collapsed{
 					width:60px;
-					-webkit-transition-duration:.8s;
+					@include animation-move;
 					.item{
 						position: relative;
 					}
@@ -238,21 +263,20 @@
 				}
 			}
 			.animant {
-				-webkit-transition-duration:.8s;
+			  @include animation-move;
 			}
 			.menu-collapsed{
 				flex:0 0 60px;
 				width: 60px;
-				-webkit-transition-duration:.8s;
+				@include animation-move;
 			}
 			.menu-expanded{
 				flex:0 0 230px;
 				width: 230px;
-				-webkit-transition-duration:.8s;
+				@include animation-move;
 			}
 			.content-container {
-
-			-webkit-transition-duration:.8s;
+			@include animation-move;
 				// background: #f1f2f7;
 				flex:1;
 				// position: absolute;

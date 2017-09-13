@@ -1,1 +1,2 @@
-$color-primary: #20a0ff;//#18c79c
+$color-primary: #20a0ff;
+@mixin animation-move { transition-duration:.8s;-webkit-transition-duration:.8s;-moz-transition-duration:.8s;}
